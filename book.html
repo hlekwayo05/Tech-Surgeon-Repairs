@@ -587,6 +587,15 @@
     </a>
 
     <script src="js/script.js"></script>
+    <!-- Add EmailJS Script -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // Initialize EmailJS with your public key
+        (function() {
+            emailjs.init("IwYLz0vpQdQ5-b9Gd"); // Your public key
+        })();
+    </script>
+    
     <script>
         // Set minimum date to today
         document.addEventListener('DOMContentLoaded', function() {
@@ -634,11 +643,15 @@
                         serviceType: document.getElementById('service-type').value
                     };
                     
-                    // Here you would typically send the form data to a server
-                    console.log('Form submitted:', formData);
-                    
-                    // Show success message
-                    alert('Thank you for your booking request! We will contact you shortly to confirm your appointment.');
+                    // Send email using EmailJS
+                    emailjs.send('service_2iv4qur', 'template_your_template_id', formData)
+                        .then(function(response) {
+                            console.log('SUCCESS!', response.status, response.text);
+                            alert('Thank you for your booking request! We will contact you shortly to confirm your appointment.');
+                        }, function(error) {
+                            console.error('FAILED...', error);
+                            alert('There was an error sending your request. Please try again or contact us directly.');
+                        });
                     
                     // Reset form
                     this.reset();
