@@ -81,22 +81,73 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission handling
     const bookingForm = document.getElementById('booking-form');
     if (bookingForm) {
+        // Set minimum date to today
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        const yyyy = today.getFullYear();
+        const todayFormatted = yyyy + '-' + mm + '-' + dd;
+        const preferredDateField = document.getElementById('preferred-date');
+        if(preferredDateField) {
+            preferredDateField.min = todayFormatted;
+        }
+
+        // File upload display
+        const fileInput = document.getElementById('photos');
+        const fileNameDisplay = document.getElementById('file-name');
+        if(fileInput && fileNameDisplay) {
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    if (this.files.length === 1) {
+                        fileNameDisplay.textContent = this.files[0].name;
+                    } else {
+                        fileNameDisplay.textContent = this.files.length + ' files selected';
+                    }
+                } else {
+                    fileNameDisplay.textContent = '';
+                }
+            });
+        }
+
         bookingForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Get form data
-            const formData = new FormData(this);
-            const formObject = {};
-            formData.forEach((value, key) => {
-                formObject[key] = value;
-            });
+            const formData = {
+  full_name: document.getElementById('full-name').value,
+  email: document.getElementById('email').value,
+  phone: document.getElementById('phone').value,
+  device_type: document.getElementById('device-type').value,
+  device_model: document.getElementById('device-model').value,
+  issue_type: document.getElementById('issue-type').value,
+  issue_description: document.getElementById('issue-description').value,
+  preferred_date: document.getElementById('preferred-date').value,
+  preferred_time: document.getElementById('preferred-time').value,
+  service_type: document.getElementById('service-type').value
+};
+
             
-            // Here you would typically send the form data to a server
-            console.log('Form submitted:', formObject);
+            // Send email using EmailJS
+            emailjs.send('service_2iv4qur', 'template_9nxo12a', formData)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                    alert('Thank you for your booking request! We will contact you shortly to confirm your appointment.');
+                }, function(error) {
+                    console.error('FAILED...', error);
+                    alert('There was an error sending your request. Please try again or contact us directly.');
+                });
             
-            // Show success message
-            alert('Thank you for your booking request! We will contact you shortly to confirm your appointment.');
+            // Reset form
             this.reset();
+            if(fileNameDisplay) {
+                fileNameDisplay.textContent = '';
+            }
+            
+            // Scroll to top
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         });
     }
 
